@@ -1,0 +1,2 @@
+#!/bin/sh
+tic80 game.lua --fs . --skip

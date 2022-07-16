@@ -1,0 +1,3 @@
+[submodule "tic80-lsp-config"]
+	path = tic80-lsp-config
+	url = https://github.com/RokasPuzonas/tic80-lsp-config
