@@ -1,4 +1,4 @@
--- title:   Stacked tic tac toe
+-- title:   Stacked Tic-Tac-Toe
 -- author:  Rokas Puzonas <rokas.puz@gmail.com>
 -- desc:    Standard tic tac toe, but you can stack certain pieces on top of others
 -- site:    https://github.com/RokasPuzonas/stacked-tic-tac-toe
@@ -24,6 +24,7 @@ local is_dragging_piece = false
 local dragging_piece_size = 0
 local was_mouse_down = false
 local finished = false
+local stalemate = false
 
 local function contains(t, v)
 	for _, value in pairs(t) do
@@ -194,6 +195,31 @@ local function didCurrentPlayerWin()
 	return (player_board[1] and player_board[5] and player_board[9]) or (player_board[3] and player_board[5] and player_board[7])
 end
 
+local function areThereAvailableMoves()
+	local pieces
+	local player_sign
+	if p1_turn then
+		pieces = p1_pieces
+		player_sign = 1
+	else
+		player_sign = -1
+		pieces = p2_pieces
+	end
+
+	local highest_piece = 0
+	for _, piece in ipairs(pieces) do
+		highest_piece = math.max(highest_piece, piece)
+	end
+
+	for _, piece in ipairs(board) do
+		if highest_piece > math.abs(piece) and sign(piece) == -player_sign or sign(piece) == 0 then
+			return true
+		end
+	end
+
+	return false
+end
+
 local function drawDisplayCorners()
 	local corner_size = 20
 	tri(0, 0, corner_size, 0, 0, corner_size, 0)
@@ -210,10 +236,15 @@ function TIC()
 	local board_x = (DISPLAY_WIDTH-BOARD_SIZE)/2
 	local board_y = (DISPLAY_HEIGHT-BOARD_SIZE)/2
 	drawBoard(board_x, board_y)
-	if not finished then
+	if stalemate then
+		print("Draw!", (DISPLAY_WIDTH-30)/2, 4)
+	elseif not finished then
 		drawTurnLabel()
 	else
 		drawWinningLabel()
+	end
+
+	if finished or stalemate then
 		print("Ctrl+R to restart", (DISPLAY_WIDTH-100)/2, DISPLAY_HEIGHT-10)
 	end
 
@@ -261,6 +292,10 @@ function TIC()
 						finished = true
 					else
 						p1_turn = not p1_turn
+					end
+
+					if not areThereAvailableMoves() then
+						stalemate = true
 					end
 				end
 			end
