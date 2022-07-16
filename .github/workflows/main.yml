@@ -1,0 +1,29 @@
+name: Build and deploy to github pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download tic80 and build
+        run: |
+          sudo apt-get install g++ git cmake ruby-full libglvnd-dev libglu1-mesa-dev freeglut3-dev libasound2-dev -y
+          git clone --recursive https://github.com/nesbox/TIC-80 && cd TIC-80/build
+          cmake .. -DBUILD_PRO=On
+          sudo make install -j4
+
+      - name: Build windows, linux and html
+        run: |
+          tic80 --cmd="load game.lua & export html html & exit" --fs . --skip --cli
+          unzip html.zip -d html
+
+      - name: Deploy on Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./html
