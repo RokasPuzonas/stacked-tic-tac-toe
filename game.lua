@@ -63,7 +63,7 @@ local function removeValue(t, v)
 	end
 end
 
-local function drawPiece(x, y, size, color, highlighted)
+local function drawPiece(x, y, size, color)
 	local outer_size
 	if size == 3 then
 		outer_size = CELL_SIZE*0.4
@@ -103,7 +103,7 @@ local function drawGrid(x, y)
 	)
 end
 
-local function drawBoard(board, x, y)
+local function drawBoard(x, y)
 	drawGrid(x, y)
 
 	for i, piece_size in ipairs(board) do
@@ -194,16 +194,27 @@ local function didCurrentPlayerWin()
 	return (player_board[1] and player_board[5] and player_board[9]) or (player_board[3] and player_board[5] and player_board[7])
 end
 
+local function drawDisplayCorners()
+	local corner_size = 20
+	tri(0, 0, corner_size, 0, 0, corner_size, 0)
+	tri(DISPLAY_WIDTH, 0, DISPLAY_WIDTH-corner_size, 0, DISPLAY_WIDTH, corner_size, 0)
+	tri(0, DISPLAY_HEIGHT, corner_size, DISPLAY_HEIGHT, 0, DISPLAY_HEIGHT-corner_size, 0)
+	tri(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_WIDTH-corner_size, DISPLAY_HEIGHT, DISPLAY_WIDTH, DISPLAY_HEIGHT-corner_size, 0)
+end
+
 function TIC()
 	cls(13)
 
+	drawDisplayCorners()
+
 	local board_x = (DISPLAY_WIDTH-BOARD_SIZE)/2
 	local board_y = (DISPLAY_HEIGHT-BOARD_SIZE)/2
-	drawBoard(board, board_x, board_y)
+	drawBoard(board_x, board_y)
 	if not finished then
 		drawTurnLabel()
 	else
 		drawWinningLabel()
+		print("Ctrl+R to restart", (DISPLAY_WIDTH-100)/2, DISPLAY_HEIGHT-10)
 	end
 
 	local side_panel_gap = (DISPLAY_WIDTH-BOARD_SIZE-2*SIDE_PANEL_WIDTH)/4
